@@ -63,7 +63,7 @@ pub async fn fetch_and_save_all_datasets(conn: &Connection) {
                 }
             }
             Err(e) => {
-                eprintln!("failed to send out request: {url}. Retrying...");
+                eprintln!("failed to send out request: {url} with error {e}. Retrying...");
             }
         }
     }   

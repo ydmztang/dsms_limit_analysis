@@ -75,6 +75,7 @@ pub fn list_datasets(conn: &Connection) -> Vec<Dataset> {
         let gated_str: String = row.get("gated").unwrap();
         let tags_str: String = row.get("tags").unwrap();
         let tags = tags_str.split(';').map(|str| str.trim().to_string()).collect();
+
         Ok(Dataset {
             _id: row.get("_id").unwrap(),
             id: row.get("id").unwrap(),
@@ -88,7 +89,7 @@ pub fn list_datasets(conn: &Connection) -> Vec<Dataset> {
             sha: row.get("sha").unwrap(),
             description: row.get("description").unwrap(),
             downloads: row.get("downloads").unwrap(),
-            tags: tags,
+            tags,
             created_at: row.get("created_at").unwrap(),
             key: row.get("key").unwrap(),
         }
