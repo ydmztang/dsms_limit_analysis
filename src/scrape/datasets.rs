@@ -28,7 +28,7 @@ pub async fn fetch_and_save_all_datasets(conn: &Connection) {
                     //         break;
                     //     }
                     // }
-                    
+
                     let header = response.headers().get("link");
                     let mut last_page = false;
                     match header {
@@ -36,8 +36,12 @@ pub async fn fetch_and_save_all_datasets(conn: &Connection) {
                             // Fetch the next link from link header: https://docs.github.com/en/rest/using-the-rest-api/using-pagination-in-the-rest-api?apiVersion=2022-11-28#link-header
                             let header_str = header.to_str().unwrap();
                             let parts: Vec<&str> = header_str.split(">; ").collect();
-                            assert!(parts.len() == 2, "Expected 2 parts of the link header. Got {}", header_str);
-                            
+                            assert!(
+                                parts.len() == 2,
+                                "Expected 2 parts of the link header. Got {}",
+                                header_str
+                            );
+
                             url = parts[0].trim_start_matches('<').to_owned();
                             if parts[1] == "rel=\"last\"" {
                                 last_page = true;
@@ -47,7 +51,7 @@ pub async fn fetch_and_save_all_datasets(conn: &Connection) {
                             last_page = true;
                         }
                     }
-      
+
                     let datasets = response.json::<Vec<Dataset>>().await.unwrap();
                     total_datasets += datasets.len();
                     println!("total datasets visited: {total_datasets}");
@@ -66,5 +70,5 @@ pub async fn fetch_and_save_all_datasets(conn: &Connection) {
                 eprintln!("failed to send out request: {url} with error {e}. Retrying...");
             }
         }
-    }   
+    }
 }
