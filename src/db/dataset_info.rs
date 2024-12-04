@@ -1,6 +1,6 @@
-use rusqlite::{params, Connection};
+use rusqlite::{params, Connection, Row};
 
-use crate::data_models::dataset_info::DatasetInfoResponse;
+use crate::data_models::dataset_info::{DatasetInfo, DatasetInfoResponse};
 
 pub fn initialize_dataset_info_table(conn: &Connection) {
     let query = "
@@ -31,4 +31,29 @@ pub fn upsert_dataset_info(
     let info: Option<String> = dataset_info.and_then(|info| serde_json::to_string(info).ok());
     conn.execute(query, params![_id, id, info, status_code.as_u16(), error])
         .unwrap();
+}
+
+
+pub struct DatasetInfoWrapper<'a> {
+    statement: rusqlite::Statement<'a>,
+}
+
+impl DatasetInfoWrapper<'_>{
+    pub fn get_iter(&'_ mut self)->impl Iterator<Item = rusqlite::Result<DatasetInfo>> + use<'_>{
+        self.statement
+        .query_map([], |row| Ok(parse_dataset_info(row)))
+        .unwrap()
+    }
+}
+
+pub fn list_all_datasets_has_info(conn: &Connection) -> DatasetInfoWrapper {
+    let stmt = conn.prepare("SELECT * FROM dataset_info where status_code = 200").unwrap();
+    DatasetInfoWrapper {
+        statement: stmt,
+    }
+}
+
+fn parse_dataset_info(row: &Row) -> DatasetInfo {
+    let info_str: String = row.get("info").unwrap();
+    serde_json::from_str(&info_str).unwrap()
 }

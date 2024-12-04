@@ -29,6 +29,7 @@ async fn fetch_and_save_datasets_info(
 ) {
     let client = Client::new();
 
+    // doc: https://huggingface.co/docs/dataset-viewer/en/info
     for dataset in datasets {
         let url: String = format!(
             "https://datasets-server.huggingface.co/info?dataset={}",
