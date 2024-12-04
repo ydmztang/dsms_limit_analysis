@@ -3,6 +3,8 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
+// doc: https://huggingface.co/docs/dataset-viewer/en/info
+
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct DatasetInfoResponse {

@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+// doc: https://huggingface.co/docs/hub/en/api#get-apidatasets
+
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct Dataset {
     pub _id: String,

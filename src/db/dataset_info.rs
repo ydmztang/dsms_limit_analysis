@@ -1,6 +1,6 @@
 use rusqlite::{params, Connection, Row};
 
-use crate::data_models::dataset_info::{DatasetInfo, DatasetInfoResponse};
+use crate::data_models::dataset_info::DatasetInfoResponse;
 
 pub fn initialize_dataset_info_table(conn: &Connection) {
     let query = "
@@ -33,27 +33,29 @@ pub fn upsert_dataset_info(
         .unwrap();
 }
 
-
 pub struct DatasetInfoWrapper<'a> {
     statement: rusqlite::Statement<'a>,
 }
 
-impl DatasetInfoWrapper<'_>{
-    pub fn get_iter(&'_ mut self)->impl Iterator<Item = rusqlite::Result<DatasetInfo>> + use<'_>{
+impl DatasetInfoWrapper<'_> {
+    pub fn get_iter(
+        &'_ mut self,
+    ) -> impl Iterator<Item = rusqlite::Result<(String, DatasetInfoResponse)>> + use<'_> {
         self.statement
-        .query_map([], |row| Ok(parse_dataset_info(row)))
-        .unwrap()
+            .query_map([], |row| Ok(parse_dataset_info(row)))
+            .unwrap()
     }
+}
+
+fn parse_dataset_info(row: &Row) -> (String, DatasetInfoResponse) {
+    let id: String = row.get("id").unwrap();
+    let info_str: String = row.get("info").unwrap();
+    (id, serde_json::from_str(&info_str).unwrap())
 }
 
 pub fn list_all_datasets_has_info(conn: &Connection) -> DatasetInfoWrapper {
-    let stmt = conn.prepare("SELECT * FROM dataset_info where status_code = 200").unwrap();
-    DatasetInfoWrapper {
-        statement: stmt,
-    }
-}
-
-fn parse_dataset_info(row: &Row) -> DatasetInfo {
-    let info_str: String = row.get("info").unwrap();
-    serde_json::from_str(&info_str).unwrap()
+    let stmt = conn
+        .prepare("SELECT * FROM dataset_info where status_code = 200")
+        .unwrap();
+    DatasetInfoWrapper { statement: stmt }
 }
