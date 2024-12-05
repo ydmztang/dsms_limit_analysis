@@ -13,7 +13,7 @@ pub async fn fetch_and_save_all_datasets_stats(conn: &Connection) {
     fetch_and_save_datasets_stats(conn, datasets_info).await;
 }
 
-pub async fn fetch_and_datasets_missing_stats(conn: &Connection) {
+pub async fn fetch_and_save_datasets_missing_stats(conn: &Connection) {
     db::dataset_stats::initialize_dataset_stats_table(conn);
 
     let datasets_info = db::dataset_info::list_datasets_has_info_but_no_stats(conn);
