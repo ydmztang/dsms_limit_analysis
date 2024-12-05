@@ -134,10 +134,22 @@ pub fn get_dataset_info<'a>(conn: &'a Connection, dataset_id: &str) -> DatasetIn
     }
 }
 
-pub fn get_ordered_dataset_info<'a>(
-    conn: &'a Connection,
-    order_by: &str,
-) -> DatasetInfoWrapper<'a> {
+pub enum OrderByOptions {
+    Trending,
+    Likes,
+    Downloads,
+}
+
+pub fn get_ordered_dataset_info(
+    conn: &Connection,
+    order_by: OrderByOptions,
+) -> DatasetInfoWrapper<'_> {
+    let order_by_str = match order_by {
+        OrderByOptions::Trending => "trending_score",
+        OrderByOptions::Likes => "likes",
+        OrderByOptions::Downloads => "downloads",
+    };
+
     let stmt = conn
         .prepare(&format!(
             "
@@ -148,7 +160,7 @@ pub fn get_ordered_dataset_info<'a>(
             ORDER BY {}
             DESC
             ",
-            order_by
+            order_by_str
         ))
         .unwrap();
     DatasetInfoWrapper::new(stmt, vec![])
