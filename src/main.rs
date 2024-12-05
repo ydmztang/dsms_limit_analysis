@@ -2,14 +2,12 @@ use rusqlite::Connection;
 
 #[tokio::main]
 async fn main() {
-    let connection = Connection::open("./analysis.db").unwrap();
-    // limit_analysis::scrape::datasets::fetch_and_save_all_datasets(&connection).await;
-    // limit_analysis::scrape::dataset_info::fetch_and_save_all_datasets_info(&connection).await;
-    // limit_analysis::scrape::dataset_stats::fetch_and_save_all_datasets_stats(&connection).await;
-
-    limit_analysis::analysis::dataset_rows::get_dataset_row_limit_coverage_by_config(
-        &connection,
-        "likes",
-        100_000,
-    );
+    let conn = Connection::open("./analysis.db").unwrap();
+    
+    // limit_analysis::scrape::common::scrape_all_data(&conn);
+    
+    // downloads, likes, trending_score
+    limit_analysis::analysis::dataset_rows::get_desired_limit_by_config(&conn, "trending_score", 0.01, 0.9);
 }
+
+
