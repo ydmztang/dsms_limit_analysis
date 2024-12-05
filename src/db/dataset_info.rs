@@ -35,16 +35,19 @@ pub fn upsert_dataset_info(
 
 pub struct DatasetInfoWrapper<'a> {
     statement: rusqlite::Statement<'a>,
+    params: Vec<Box<dyn rusqlite::ToSql>>,
 }
 
-impl DatasetInfoWrapper<'_> {
-    pub fn get_iter<P>(
-        &'_ mut self,
-        params: P,
+impl<'a> DatasetInfoWrapper<'a> {
+    pub fn new(statement: rusqlite::Statement<'a>, params: Vec<Box<dyn rusqlite::ToSql>>) -> Self {
+        Self { statement, params }
+    }
+
+    pub fn get_iter(
+        &'_ mut self
     ) -> impl Iterator<Item = rusqlite::Result<(String, DatasetInfoResponse)>> + '_
-    where
-        P: rusqlite::Params,
     {
+        let params = rusqlite::params_from_iter(self.params.iter());
         self.statement
             .query_map(params, |row| Ok(parse_dataset_info(row)))
             .unwrap()
@@ -61,7 +64,7 @@ pub fn list_all_datasets_has_info(conn: &Connection) -> DatasetInfoWrapper {
     let stmt = conn
         .prepare("SELECT * FROM dataset_info where status_code = 200")
         .unwrap();
-    DatasetInfoWrapper { statement: stmt }
+    DatasetInfoWrapper { statement: stmt, params: vec![] }
 }
 
 pub fn list_datasets_has_info_but_no_stats(conn: &Connection) -> DatasetInfoWrapper {
@@ -76,13 +79,16 @@ pub fn list_datasets_has_info_but_no_stats(conn: &Connection) -> DatasetInfoWrap
 ",
         )
         .unwrap();
-    DatasetInfoWrapper { statement: stmt }
+    DatasetInfoWrapper { statement: stmt, params: vec![] }
 }
 
-pub fn get_dataset_info(conn: &Connection) -> DatasetInfoWrapper<'_> {
+pub fn get_dataset_info<'a>(conn: &'a Connection, dataset_id: &str) -> DatasetInfoWrapper<'a> {
     let stmt = conn
-        .prepare("SELECT * FROM dataset_info where id = ?1")
+        .prepare("SELECT * FROM dataset_info WHERE id = ?1")
         .unwrap();
 
-    DatasetInfoWrapper { statement: stmt }
+    DatasetInfoWrapper {
+        statement: stmt,
+        params: vec![Box::new(dataset_id.to_string())],
+    }
 }
