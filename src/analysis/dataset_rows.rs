@@ -1,11 +1,11 @@
-use crate::db;
+use crate::db::{self, dataset_info::OrderByOptions};
 use rusqlite::Connection;
 
 // Report the number every {GRANULARITY} percentage of datasets
 const GRANULARITY: f32 = 0.01;
 
 // Check how much datasets our current limit can cover
-pub fn get_dataset_row_limit_coverage_by_dataset(conn: &Connection, order_by: &str, limit: i64) {
+pub fn get_dataset_row_limit_coverage_by_dataset(conn: &Connection, order_by: OrderByOptions, limit: i64) {
     let dataset_count = db::dataset_info::get_datasets_count(conn);
     let report_interval = (dataset_count.datasets as f32 * GRANULARITY) as i32;
     println!(
@@ -41,7 +41,7 @@ pub fn get_dataset_row_limit_coverage_by_dataset(conn: &Connection, order_by: &s
     }
 }
 
-pub fn get_dataset_row_limit_coverage_by_config(conn: &Connection, order_by: &str, limit: i64) {
+pub fn get_dataset_row_limit_coverage_by_config(conn: &Connection, order_by: OrderByOptions, limit: i64) {
     let dataset_count = db::dataset_info::get_datasets_count(conn);
     let report_interval = (dataset_count.configs as f32 * GRANULARITY) as i32;
     println!(
@@ -77,7 +77,7 @@ pub fn get_dataset_row_limit_coverage_by_config(conn: &Connection, order_by: &st
 }
 
 // Get the limit in order to cover top N% datasets with M% coverage
-pub fn get_desired_limit_by_config(conn: &Connection, order_by: &str, top: f64, desired_coverage: f64) {
+pub fn get_desired_limit_by_config(conn: &Connection, order_by: OrderByOptions, top: f64, desired_coverage: f64) {
     let dataset_count = db::dataset_info::get_datasets_count(conn);
     let top_count = (dataset_count.configs as f64 * top) as usize;
     let target_count = (top_count as f64 * desired_coverage) as usize;
