@@ -38,11 +38,15 @@ pub struct DatasetInfoWrapper<'a> {
 }
 
 impl DatasetInfoWrapper<'_> {
-    pub fn get_iter(
+    pub fn get_iter<P>(
         &'_ mut self,
-    ) -> impl Iterator<Item = rusqlite::Result<(String, DatasetInfoResponse)>> + use<'_> {
+        params: P,
+    ) -> impl Iterator<Item = rusqlite::Result<(String, DatasetInfoResponse)>> + '_
+    where
+        P: rusqlite::Params,
+    {
         self.statement
-            .query_map([], |row| Ok(parse_dataset_info(row)))
+            .query_map(params, |row| Ok(parse_dataset_info(row)))
             .unwrap()
     }
 }
@@ -57,5 +61,13 @@ pub fn list_all_datasets_has_info(conn: &Connection) -> DatasetInfoWrapper {
     let stmt = conn
         .prepare("SELECT * FROM dataset_info where status_code = 200")
         .unwrap();
+    DatasetInfoWrapper { statement: stmt }
+}
+
+pub fn get_dataset_info(conn: &Connection) -> DatasetInfoWrapper<'_> {
+    let stmt = conn
+        .prepare("SELECT * FROM dataset_info where id = ?1")
+        .unwrap();
+
     DatasetInfoWrapper { statement: stmt }
 }

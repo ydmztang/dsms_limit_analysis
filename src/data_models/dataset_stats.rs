@@ -20,8 +20,7 @@ pub struct ColumnStats {
     pub column_statistics: serde_json::Value,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[derive(Default)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub enum Statistics {
     #[default]
     None,
@@ -35,7 +34,6 @@ pub enum Statistics {
     Audio(AudioStats),
     Image(ImageStats),
 }
-
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(default)]

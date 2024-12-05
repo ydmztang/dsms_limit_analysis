@@ -1,5 +1,6 @@
+
 use reqwest::Client;
-use rusqlite::Connection;
+use rusqlite::{params, Connection};
 
 use crate::{
     data_models::dataset_stats::DatasetStatsResponse,
@@ -10,16 +11,24 @@ pub async fn fetch_and_save_all_datasets_stats(conn: &Connection) {
     db::dataset_stats::initialize_dataset_stats_table(conn);
 
     let datasets_info = db::dataset_info::list_all_datasets_has_info(conn);
-    fetch_and_save_datasets_stats(conn, datasets_info).await;
+    let params = params![];
+    fetch_and_save_datasets_stats(conn, datasets_info, params).await;
+}
+
+pub async fn fetch_and_save_dataset_stats(conn: &Connection, dataset_id: &str) {
+    let datasets_info = db::dataset_info::get_dataset_info(conn);
+    let params = params![dataset_id];
+    fetch_and_save_datasets_stats(conn, datasets_info, params).await;
 }
 
 async fn fetch_and_save_datasets_stats(
     conn: &Connection,
     mut datasets_info: DatasetInfoWrapper<'_>,
+    params: &[&dyn rusqlite::ToSql],
 ) {
     let client = Client::new();
 
-    for dataset_info in datasets_info.get_iter() {
+    for dataset_info in datasets_info.get_iter(params) {
         let (id, dataset_info_response) = dataset_info.unwrap();
 
         for (config_name, dataset_info) in dataset_info_response.dataset_info {
