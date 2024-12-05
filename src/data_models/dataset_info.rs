@@ -8,7 +8,7 @@ use serde_json::Value;
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct DatasetInfoResponse {
-    pub dataset_info: HashMap<String, DatasetInfo>,
+    pub dataset_info: HashMap<String, DatasetConfigInfo>,
     pub pending: Vec<Value>,
     pub failed: Vec<Value>,
     pub partial: bool,
@@ -16,7 +16,7 @@ pub struct DatasetInfoResponse {
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(default)]
-pub struct DatasetInfo {
+pub struct DatasetConfigInfo {
     pub description: String,
     pub citation: String,
     pub homepage: String,

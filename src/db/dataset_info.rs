@@ -33,6 +33,42 @@ pub fn upsert_dataset_info(
         .unwrap();
 }
 
+pub struct DatasetCount {
+    pub datasets: i64,
+    pub configs: i64,
+    pub splits: i64,
+}
+
+pub fn get_datasets_count(conn: &Connection) -> DatasetCount {
+    println!("Getting count. This may take a while...");
+    let mut datasets = list_all_datasets_has_info(conn);
+    let mut dataset_count = 0;
+    let mut config_count = 0;
+    let mut split_count = 0;
+    for dataset in datasets.get_iter() {
+        dataset_count += 1;
+        let (_, dataset_info_response) = dataset.unwrap();
+        for (_, config_info) in dataset_info_response.dataset_info {
+            config_count += 1;
+            for (_, _) in config_info.splits {
+                split_count += 1;
+            }
+        }
+
+        if dataset_count % 1000 == 0 {
+            print!("\rVisited {}K datasets", dataset_count / 1000);
+            std::io::Write::flush(&mut std::io::stdout()).unwrap();
+        }
+    }
+    println!();
+
+    DatasetCount {
+        datasets: dataset_count,
+        configs: config_count,
+        splits: split_count,
+    }
+}
+
 pub struct DatasetInfoWrapper<'a> {
     statement: rusqlite::Statement<'a>,
     params: Vec<Box<dyn rusqlite::ToSql>>,
@@ -44,9 +80,8 @@ impl<'a> DatasetInfoWrapper<'a> {
     }
 
     pub fn get_iter(
-        &'_ mut self
-    ) -> impl Iterator<Item = rusqlite::Result<(String, DatasetInfoResponse)>> + '_
-    {
+        &'_ mut self,
+    ) -> impl Iterator<Item = rusqlite::Result<(String, DatasetInfoResponse)>> + '_ {
         let params = rusqlite::params_from_iter(self.params.iter());
         self.statement
             .query_map(params, |row| Ok(parse_dataset_info(row)))
@@ -64,7 +99,10 @@ pub fn list_all_datasets_has_info(conn: &Connection) -> DatasetInfoWrapper {
     let stmt = conn
         .prepare("SELECT * FROM dataset_info where status_code = 200")
         .unwrap();
-    DatasetInfoWrapper { statement: stmt, params: vec![] }
+    DatasetInfoWrapper {
+        statement: stmt,
+        params: vec![],
+    }
 }
 
 pub fn list_datasets_has_info_but_no_stats(conn: &Connection) -> DatasetInfoWrapper {
@@ -79,7 +117,10 @@ pub fn list_datasets_has_info_but_no_stats(conn: &Connection) -> DatasetInfoWrap
 ",
         )
         .unwrap();
-    DatasetInfoWrapper { statement: stmt, params: vec![] }
+    DatasetInfoWrapper {
+        statement: stmt,
+        params: vec![],
+    }
 }
 
 pub fn get_dataset_info<'a>(conn: &'a Connection, dataset_id: &str) -> DatasetInfoWrapper<'a> {
@@ -91,4 +132,24 @@ pub fn get_dataset_info<'a>(conn: &'a Connection, dataset_id: &str) -> DatasetIn
         statement: stmt,
         params: vec![Box::new(dataset_id.to_string())],
     }
+}
+
+pub fn get_ordered_dataset_info<'a>(
+    conn: &'a Connection,
+    order_by: &str,
+) -> DatasetInfoWrapper<'a> {
+    let stmt = conn
+        .prepare(&format!(
+            "
+            SELECT * FROM datasets
+            JOIN dataset_info
+                ON datasets._id=dataset_info._id
+            WHERE dataset_info.status_code = 200
+            ORDER BY {}
+            DESC
+            ",
+            order_by
+        ))
+        .unwrap();
+    DatasetInfoWrapper::new(stmt, vec![])
 }
