@@ -7,9 +7,5 @@ async fn main() {
     // limit_analysis::scrape::dataset_info::fetch_and_save_all_datasets_info(&connection).await;
     // limit_analysis::scrape::dataset_stats::fetch_and_save_all_datasets_stats(&connection).await;
 
-    limit_analysis::scrape::dataset_stats::fetch_and_save_dataset_stats(
-        &connection,
-        "cis-lmu/GlotCC-V1",
-    )
-    .await;
+    limit_analysis::scrape::dataset_stats::fetch_and_datasets_missing_stats(&connection).await;
 }

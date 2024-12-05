@@ -64,6 +64,21 @@ pub fn list_all_datasets_has_info(conn: &Connection) -> DatasetInfoWrapper {
     DatasetInfoWrapper { statement: stmt }
 }
 
+pub fn list_datasets_has_info_but_no_stats(conn: &Connection) -> DatasetInfoWrapper {
+    let stmt = conn
+        .prepare(
+            "
+        SELECT * FROM dataset_info  
+        LEFT JOIN dataset_stats
+            ON dataset_info.id = dataset_stats.id
+        WHERE dataset_stats.id is NULL
+            AND dataset_info.status_code = 200
+",
+        )
+        .unwrap();
+    DatasetInfoWrapper { statement: stmt }
+}
+
 pub fn get_dataset_info(conn: &Connection) -> DatasetInfoWrapper<'_> {
     let stmt = conn
         .prepare("SELECT * FROM dataset_info where id = ?1")
