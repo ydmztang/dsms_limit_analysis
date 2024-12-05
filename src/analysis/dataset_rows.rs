@@ -5,8 +5,12 @@ use rusqlite::Connection;
 const GRANULARITY: f32 = 0.01;
 
 // Check how much datasets our current limit can cover
-pub fn get_dataset_row_limit_coverage_by_dataset(conn: &Connection, order_by: OrderByOptions, limit: i64) {
-    let dataset_count = db::dataset_info::get_datasets_count(conn);
+pub fn get_dataset_row_limit_coverage_by_dataset(
+    conn: &Connection,
+    order_by: OrderByOptions,
+    limit: i64,
+) {
+    let dataset_count = db::total_dataset_count::get_dataset_count(conn);
     let report_interval = (dataset_count.datasets as f32 * GRANULARITY) as i32;
     println!(
         "Report granularity is {}, reporta interval is every {} datasets",
@@ -41,8 +45,12 @@ pub fn get_dataset_row_limit_coverage_by_dataset(conn: &Connection, order_by: Or
     }
 }
 
-pub fn get_dataset_row_limit_coverage_by_config(conn: &Connection, order_by: OrderByOptions, limit: i64) {
-    let dataset_count = db::dataset_info::get_datasets_count(conn);
+pub fn get_dataset_row_limit_coverage_by_config(
+    conn: &Connection,
+    order_by: OrderByOptions,
+    limit: i64,
+) {
+    let dataset_count = db::total_dataset_count::get_dataset_count(conn);
     let report_interval = (dataset_count.configs as f32 * GRANULARITY) as i32;
     println!(
         "Report granularity is {}, reporta interval is every {} configs",
@@ -77,11 +85,19 @@ pub fn get_dataset_row_limit_coverage_by_config(conn: &Connection, order_by: Ord
 }
 
 // Get the limit in order to cover top N% datasets with M% coverage
-pub fn get_desired_limit_by_config(conn: &Connection, order_by: OrderByOptions, top: f64, desired_coverage: f64) {
-    let dataset_count = db::dataset_info::get_datasets_count(conn);
+pub fn get_desired_limit_by_config(
+    conn: &Connection,
+    order_by: OrderByOptions,
+    top: f64,
+    desired_coverage: f64,
+) {
+    let dataset_count = db::total_dataset_count::get_dataset_count(conn);
     let top_count = (dataset_count.configs as f64 * top) as usize;
     let target_count = (top_count as f64 * desired_coverage) as usize;
-    println!("Total configs: {}, top configs to look up: {}, desired configs to cover: {}", dataset_count.configs, top_count, target_count);
+    println!(
+        "Total configs: {}, top configs to look up: {}, desired configs to cover: {}",
+        dataset_count.configs, top_count, target_count
+    );
 
     let mut visited_count = 0;
     let mut config_row_counts: Vec<i64> = vec![];
