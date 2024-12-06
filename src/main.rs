@@ -6,7 +6,8 @@ async fn main() {
 
     // limit_analysis::scrape::common::scrape_all_data(&conn);
 
-    limit_analysis::analysis::dataset_rows::get_desired_limit_by_config(
+    // limit_analysis::analysis::dataset_size::get_dataset_size_limit_coverage_by_config(&conn, OrderByOptions::Downloads, 128);
+    limit_analysis::analysis::dataset_size::get_desired_limit_by_config(
         &conn,
         limit_analysis::db::dataset_info::OrderByOptions::Trending,
         0.01,
