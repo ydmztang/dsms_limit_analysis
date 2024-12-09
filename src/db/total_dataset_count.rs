@@ -50,7 +50,7 @@ fn initialize_total_dataset_count_table(conn: &Connection) {
 }
 
 fn calculate_datasets_count(conn: &Connection) -> DatasetCount {
-    println!("Getting count. This may take a while...");
+    println!("Getting total datasets count. This may take a while...");
     let mut datasets = crate::db::dataset_info::list_all_datasets_has_info(conn);
     let mut dataset_count = 0;
     let mut config_count = 0;
