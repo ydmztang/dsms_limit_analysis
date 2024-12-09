@@ -2,6 +2,7 @@ use rusqlite::{params, Connection};
 
 use crate::data_models::dataset_stats::DatasetStatsResponse;
 
+
 pub fn initialize_dataset_stats_table(conn: &Connection) {
     let query = "
     CREATE TABLE IF NOT EXISTS dataset_stats (
@@ -38,3 +39,23 @@ pub fn upsert_dataset_stats(
     )
     .unwrap();
 }
+
+// pub fn get_ordered_dataset_stats_info(
+//     conn: &Connection,
+//     order_by: OrderByOptions,
+// ) -> DatasetInfoWrapper<'_> {
+//     let stmt = conn
+//         .prepare(&format!(
+//             "
+//             SELECT * FROM datasets
+//             JOIN dataset_info
+//                 ON datasets._id=dataset_info._id
+//             WHERE dataset_info.status_code = 200
+//             ORDER BY {}
+//             DESC
+//             ",
+//             order_by.as_string()
+//         ))
+//         .unwrap();
+//     DatasetInfoWrapper::new(stmt, vec![])
+// }

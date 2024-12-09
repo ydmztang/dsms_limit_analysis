@@ -1,6 +1,6 @@
 use crate::{
     analysis::constants::GRANULARITY,
-    db::{self, dataset_info::OrderByOptions},
+    db::{self, common::OrderByOptions},
 };
 use rusqlite::Connection;
 
@@ -9,8 +9,8 @@ pub fn get_max_columns_limit_coverage_by_config(
     order_by: OrderByOptions,
     limit: i64,
 ) {
-    let dataset_count = db::total_dataset_count::get_dataset_count(conn);
-    let report_interval = (dataset_count.configs as f32 * GRANULARITY) as i32;
+    let dataset_stats_count = db::total_dataset_stats_count::get_dataset_stats_count(conn);
+    let report_interval = (dataset_stats_count.configs as f32 * GRANULARITY) as i32;
     println!(
         "Report granularity is {}, reporta interval is every {} configs",
         GRANULARITY, report_interval

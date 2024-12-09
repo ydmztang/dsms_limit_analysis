@@ -1,6 +1,9 @@
+
 use rusqlite::{params, Connection, Row};
 
 use crate::data_models::dataset_info::DatasetInfoResponse;
+
+use super::common::OrderByOptions;
 
 pub fn initialize_dataset_info_table(conn: &Connection) {
     let query = "
@@ -98,22 +101,10 @@ pub fn get_dataset_info<'a>(conn: &'a Connection, dataset_id: &str) -> DatasetIn
     }
 }
 
-pub enum OrderByOptions {
-    Trending,
-    Likes,
-    Downloads,
-}
-
 pub fn get_ordered_dataset_info(
     conn: &Connection,
     order_by: OrderByOptions,
 ) -> DatasetInfoWrapper<'_> {
-    let order_by_str = match order_by {
-        OrderByOptions::Trending => "trending_score",
-        OrderByOptions::Likes => "likes",
-        OrderByOptions::Downloads => "downloads",
-    };
-
     let stmt = conn
         .prepare(&format!(
             "
@@ -124,7 +115,7 @@ pub fn get_ordered_dataset_info(
             ORDER BY {}
             DESC
             ",
-            order_by_str
+            order_by.as_string()
         ))
         .unwrap();
     DatasetInfoWrapper::new(stmt, vec![])
