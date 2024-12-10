@@ -61,7 +61,7 @@ impl<'a> DatasetStatsInfoWrapper<'a> {
     }
 }
 
-#[derive(Default, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct DatasetStatsId {
     pub dataset: String,
     pub config: String,

@@ -7,12 +7,5 @@ async fn main() {
 
     // limit_analysis::scrape::common::scrape_all_data(&conn);
 
-    //limit_analysis::analysis::max_field_length::get_limit_coverage_by_config(&conn, OrderByOptions::Trending, 64_000);
-    
-    limit_analysis::analysis::max_field_length::get_desired_limit_by_config(
-        &conn,
-        OrderByOptions::Trending,
-        0.01,
-        0.99,
-    );
+    limit_analysis::analysis::image_size::get_image_size_distribution(&conn, OrderByOptions::Trending, 0.01, 100);
 }
