@@ -38,112 +38,112 @@ pub enum Statistics {
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Histogram {
-    hist: Vec<i64>,
-    bin_edges: Vec<f64>,
+    pub hist: Vec<i64>,
+    pub bin_edges: Vec<f64>,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ClassLabelStats {
-    nan_count: i64,
-    nan_proportion: f64,
-    no_label_count: i64,
-    no_label_proportion: f64,
-    n_unique: i64,
-    frequencies: HashMap<String, i64>,
+    pub nan_count: i64,
+    pub nan_proportion: f64,
+    pub no_label_count: i64,
+    pub no_label_proportion: f64,
+    pub n_unique: i64,
+    pub frequencies: HashMap<String, i64>,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct FloatStats {
-    nan_count: i64,
-    nan_proportion: f64,
-    min: f64,
-    max: f64,
-    mean: f64,
-    median: f64,
-    std: f64,
-    histogram: Histogram,
+    pub nan_count: i64,
+    pub nan_proportion: f64,
+    pub min: f64,
+    pub max: f64,
+    pub mean: f64,
+    pub median: f64,
+    pub std: f64,
+    pub histogram: Histogram,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct IntStats {
-    nan_count: i64,
-    nan_proportion: f64,
-    min: i64,
-    max: i64,
-    mean: f64,
-    median: f64,
-    std: f64,
-    histogram: Histogram,
+    pub nan_count: i64,
+    pub nan_proportion: f64,
+    pub min: i64,
+    pub max: i64,
+    pub mean: f64,
+    pub median: f64,
+    pub std: f64,
+    pub histogram: Histogram,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct BoolStats {
-    nan_count: i64,
-    nan_proportion: f64,
-    frequencies: HashMap<String, i64>,
+    pub nan_count: i64,
+    pub nan_proportion: f64,
+    pub frequencies: HashMap<String, i64>,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct StringLabelStats {
-    nan_count: i64,
-    nan_proportion: f64,
-    n_unique: i64,
-    frequencies: HashMap<String, i64>,
+    pub nan_count: i64,
+    pub nan_proportion: f64,
+    pub n_unique: i64,
+    pub frequencies: HashMap<String, i64>,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct StringTextStats {
-    nan_count: i64,
-    nan_proportion: f64,
-    min: i64,
-    max: i64,
-    mean: f64,
-    median: f64,
-    std: f64,
-    histogram: Histogram,
+    pub nan_count: i64,
+    pub nan_proportion: f64,
+    pub min: i64,
+    pub max: i64,
+    pub mean: f64,
+    pub median: f64,
+    pub std: f64,
+    pub histogram: Histogram,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ListStats {
-    nan_count: i64,
-    nan_proportion: f64,
-    min: i64,
-    max: i64,
-    mean: f64,
-    median: f64,
-    std: f64,
-    histogram: Histogram,
+    pub nan_count: i64,
+    pub nan_proportion: f64,
+    pub min: i64,
+    pub max: i64,
+    pub mean: f64,
+    pub median: f64,
+    pub std: f64,
+    pub histogram: Histogram,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct AudioStats {
-    nan_count: i64,
-    nan_proportion: f64,
-    min: f64,
-    max: f64,
-    mean: f64,
-    median: f64,
-    std: f64,
-    histogram: Histogram,
+    pub nan_count: i64,
+    pub nan_proportion: f64,
+    pub min: f64,
+    pub max: f64,
+    pub mean: f64,
+    pub median: f64,
+    pub std: f64,
+    pub histogram: Histogram,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ImageStats {
-    nan_count: i64,
-    nan_proportion: f64,
-    min: i64,
-    max: i64,
-    mean: f64,
-    median: f64,
-    std: f64,
-    histogram: Histogram,
+    pub nan_count: i64,
+    pub nan_proportion: f64,
+    pub min: i64,
+    pub max: i64,
+    pub mean: f64,
+    pub median: f64,
+    pub std: f64,
+    pub histogram: Histogram,
 }

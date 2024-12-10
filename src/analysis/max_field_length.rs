@@ -1,7 +1,7 @@
-use std::collections::HashSet;
+use std::cmp::max;
 
 use crate::{
-    analysis::constants::GRANULARITY, db::{self, common::OrderByOptions, dataset_stats::DatasetStatsId}
+    analysis::{constants::GRANULARITY}, data_models::dataset_stats::StringTextStats, db::{self, common::OrderByOptions, dataset_stats::DatasetStatsId}
 };
 use rusqlite::Connection;
 
@@ -20,17 +20,15 @@ pub fn get_limit_coverage_by_config(
     let mut visited_count = 0;
     let mut cover_count = 0;
     let mut last_stats_id: DatasetStatsId = DatasetStatsId::default();
-    let mut column_names = HashSet::<String>::new();
-    let mut visited_configs = HashSet::<String>::new();
+    let mut max_text_length = 0;
     for dataset_stats in db::dataset_stats::get_ordered_dataset_stats_info(conn, order_by).get_iter() {
         let (dataset_stats_id, dataset_stats_response) = dataset_stats.unwrap();
         
         // Encountered a new config
-        let mut is_new_config = false;
         if dataset_stats_id.dataset != last_stats_id.dataset || dataset_stats_id.config != last_stats_id.config {     
             // calculate coverage       
             if visited_count > 0 {
-                if limit > column_names.len() {
+                if limit > max_text_length {
                     cover_count += 1;
                 }
         
@@ -40,25 +38,16 @@ pub fn get_limit_coverage_by_config(
             }
             
             // initialize variables for new config
-            column_names = HashSet::<String>::new();
+            max_text_length = 0;
             last_stats_id = dataset_stats_id.clone();
             visited_count += 1;
-
-            // some error check
-            is_new_config = true;
-            let config_id = format!("{}_{}", dataset_stats_id.dataset, dataset_stats_id.config);
-            if visited_configs.contains(&config_id) {
-                panic!("???????? Encounter the config twice in a non consequtive way. Dataset: {}, Config: {}", &dataset_stats_id.dataset, &dataset_stats_id.config);
-            }
-            visited_configs.insert(config_id);
         }
 
         for column in dataset_stats_response.statistics {
-            if !is_new_config && !column_names.contains(&column.column_name) {
-                // The columns may be different between splits. E.g., Dataset: Asimok/KGLQA-KnowledgeBank-QuALITY, Config: caption. The "dev" and "test" splits has different columns
-                // panic!("???????? Found new column name in another split of a config. Dataset: {}, Config: {}, Split: {}", &dataset_stats_id.dataset, &dataset_stats_id.config, &dataset_stats_id.split);
+            if column.column_type == "string_text" {
+                let stats: StringTextStats = serde_json::from_value(column.column_statistics).unwrap();
+                max_text_length = max(max_text_length, stats.max as usize);
             }
-            column_names.insert(column.column_name);
         }
     }
 
@@ -85,29 +74,32 @@ pub fn get_desired_limit_by_config(
 
     let mut visited_count = 0;    
     let mut last_stats_id: DatasetStatsId = DatasetStatsId::default();
-    let mut column_names = HashSet::<String>::new();
-    let mut columns_counts: Vec<usize> = vec![];
+    let mut max_text_length  = 0;
+    let mut max_text_lengths: Vec<usize> = vec![];
     for dataset_stats in db::dataset_stats::get_ordered_dataset_stats_info(conn, order_by).get_iter() {
         let (dataset_stats_id, dataset_stats_response) = dataset_stats.unwrap();
         
         // Encountered a new config
         if dataset_stats_id.dataset != last_stats_id.dataset || dataset_stats_id.config != last_stats_id.config {     
-            columns_counts.push(column_names.len());
+            max_text_lengths.push(max_text_length);
             
-            column_names = HashSet::<String>::new();
+            max_text_length = 0;
             last_stats_id = dataset_stats_id.clone();
             visited_count += 1;
             
             if visited_count >= top_count {
                 // Sort in ascending order using `partial_cmp`
-                columns_counts.sort();
-                println!("The desired limit is {}", columns_counts[target_count]);
+                max_text_lengths.sort();
+                println!("The desired limit is {}", max_text_lengths[target_count]);
                 return;
             }
         }
 
         for column in dataset_stats_response.statistics {
-            column_names.insert(column.column_name);
+            if column.column_type == "string_text" {
+                let stats: StringTextStats = serde_json::from_value(column.column_statistics).unwrap();
+                max_text_length = max(max_text_length, stats.max as usize);
+            }
         }
     }
 }
