@@ -1,6 +1,6 @@
 use crate::{
     analysis::constants::GRANULARITY,
-    db::{self, dataset_info::OrderByOptions},
+    db::{self, common::OrderByOptions},
 };
 use rusqlite::Connection;
 
