@@ -1,7 +1,8 @@
 use std::{cmp::max, collections::HashMap};
 
 use crate::{
-    data_models::dataset_stats::{ImageStats}, db::{self, common::OrderByOptions, dataset_stats::DatasetStatsId}
+    data_models::dataset_stats::ImageStats,
+    db::{self, common::OrderByOptions, dataset_stats::DatasetStatsId},
 };
 use rusqlite::Connection;
 
@@ -23,14 +24,18 @@ pub fn get_image_size_distribution(
     let mut max_image_width = 0;
     let mut size_buckets = HashMap::<usize, usize>::new();
     let mut total_image_configs = 0;
-    for dataset_stats in db::dataset_stats::get_ordered_dataset_stats_info(conn, order_by).get_iter() {
+    for dataset_stats in
+        db::dataset_stats::get_ordered_dataset_stats_info(conn, order_by).get_iter()
+    {
         let (dataset_stats_id, dataset_stats_response) = dataset_stats.unwrap();
-        
+
         // Encountered a new config
-        if dataset_stats_id.dataset != last_stats_id.dataset || dataset_stats_id.config != last_stats_id.config {     
+        if dataset_stats_id.dataset != last_stats_id.dataset
+            || dataset_stats_id.config != last_stats_id.config
+        {
             // update count in the bucket
             if max_image_width != 0 {
-                total_image_configs += 1; 
+                total_image_configs += 1;
 
                 let bucket_index = max_image_width / bucket_size;
                 *size_buckets.entry(bucket_index).or_insert(0) += 1;
@@ -50,7 +55,7 @@ pub fn get_image_size_distribution(
 
         for column in dataset_stats_response.statistics {
             if column.column_type == "image" {
-                let stats  = serde_json::from_value::<ImageStats>(column.column_statistics);
+                let stats = serde_json::from_value::<ImageStats>(column.column_statistics);
                 if let Err(err) = stats {
                     println!("dataset: {:?}, error: {:?}", dataset_stats_id, err);
                 } else if let Ok(stats) = stats {
@@ -68,10 +73,14 @@ pub fn get_image_size_distribution(
     keys.sort();
     let max_bucket_index = *keys.last().unwrap();
     let mut covered_images = 0;
-    
+
     println!("Image Width,Count");
     for i in 0..=max_bucket_index {
         covered_images += size_buckets.get(&i).unwrap_or(&0);
-        println!("{},{}", i * bucket_size, 100.0 * covered_images as f64 / total_image_configs as f64);
+        println!(
+            "{},{}",
+            i * bucket_size,
+            100.0 * covered_images as f64 / total_image_configs as f64
+        );
     }
 }

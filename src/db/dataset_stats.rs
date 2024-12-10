@@ -74,7 +74,11 @@ fn parse_dataset_info(row: &Row) -> (DatasetStatsId, DatasetStatsResponse) {
     let split: String = row.get("split").unwrap();
     let stats_str: String = row.get("stats").unwrap();
     (
-        DatasetStatsId { dataset: id, config, split },
+        DatasetStatsId {
+            dataset: id,
+            config,
+            split,
+        },
         serde_json::from_str(&stats_str).unwrap(),
     )
 }

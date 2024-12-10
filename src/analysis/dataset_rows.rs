@@ -5,11 +5,7 @@ use crate::{
 use rusqlite::Connection;
 
 // Check how much datasets our current limit can cover
-pub fn get_limit_coverage_by_dataset(
-    conn: &Connection,
-    order_by: OrderByOptions,
-    limit: i64,
-) {
+pub fn get_limit_coverage_by_dataset(conn: &Connection, order_by: OrderByOptions, limit: i64) {
     let dataset_count = db::total_dataset_count::get_dataset_count(conn);
     let report_interval = (dataset_count.datasets as f32 * GRANULARITY) as i32;
     println!(
@@ -45,11 +41,7 @@ pub fn get_limit_coverage_by_dataset(
     }
 }
 
-pub fn get_limit_coverage_by_config(
-    conn: &Connection,
-    order_by: OrderByOptions,
-    limit: i64,
-) {
+pub fn get_limit_coverage_by_config(conn: &Connection, order_by: OrderByOptions, limit: i64) {
     let dataset_count = db::total_dataset_count::get_dataset_count(conn);
     let report_interval = (dataset_count.configs as f32 * GRANULARITY) as i32;
     println!(
