@@ -5,7 +5,7 @@ use crate::{
 use rusqlite::Connection;
 
 // Get dataset size limit (in GB) coverage
-pub fn get_dataset_size_limit_coverage_by_config(
+pub fn get_limit_coverage_by_config(
     conn: &Connection,
     order_by: OrderByOptions,
     limit: i64,

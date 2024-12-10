@@ -5,7 +5,7 @@ use crate::{
 use rusqlite::Connection;
 
 // Check how much datasets our current limit can cover
-pub fn get_dataset_row_limit_coverage_by_dataset(
+pub fn get_limit_coverage_by_dataset(
     conn: &Connection,
     order_by: OrderByOptions,
     limit: i64,
@@ -45,7 +45,7 @@ pub fn get_dataset_row_limit_coverage_by_dataset(
     }
 }
 
-pub fn get_dataset_row_limit_coverage_by_config(
+pub fn get_limit_coverage_by_config(
     conn: &Connection,
     order_by: OrderByOptions,
     limit: i64,
