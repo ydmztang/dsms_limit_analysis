@@ -138,12 +138,12 @@ pub struct AudioStats {
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ImageStats {
-    pub nan_count: i64,
-    pub nan_proportion: f64,
-    pub min: i64,
-    pub max: i64,
-    pub mean: f64,
-    pub median: f64,
-    pub std: f64,
-    pub histogram: Histogram,
+    pub nan_count: Option<i64>,
+    pub nan_proportion: Option<f64>,
+    pub min: Option<i64>,
+    pub max: Option<i64>,
+    pub mean: Option<f64>,
+    pub median: Option<f64>,
+    pub std: Option<f64>,
+    pub histogram: Option<Histogram>,
 }
