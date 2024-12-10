@@ -6,8 +6,6 @@ pub enum OrderByOptions {
 
 impl OrderByOptions {
     pub fn as_string(&self) -> &str {
-        
-
         (match self {
             OrderByOptions::Trending => "trending_score",
             OrderByOptions::Likes => "likes",

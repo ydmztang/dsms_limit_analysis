@@ -1,4 +1,7 @@
-use crate::db::{total_dataset_count::calculate_and_update_total_dataset_count, total_dataset_stats_count::calculate_and_update_total_dataset_stats_count};
+use crate::db::{
+    total_dataset_count::calculate_and_update_total_dataset_count,
+    total_dataset_stats_count::calculate_and_update_total_dataset_stats_count,
+};
 use rusqlite::Connection;
 
 use super::{dataset_info, dataset_stats, datasets};

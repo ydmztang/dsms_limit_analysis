@@ -1,7 +1,8 @@
-use rusqlite::{params, Connection};
+use rusqlite::{params, Connection, Row};
 
 use crate::data_models::dataset_stats::DatasetStatsResponse;
 
+use super::common::OrderByOptions;
 
 pub fn initialize_dataset_stats_table(conn: &Connection) {
     let query = "
@@ -40,22 +41,59 @@ pub fn upsert_dataset_stats(
     .unwrap();
 }
 
-// pub fn get_ordered_dataset_stats_info(
-//     conn: &Connection,
-//     order_by: OrderByOptions,
-// ) -> DatasetInfoWrapper<'_> {
-//     let stmt = conn
-//         .prepare(&format!(
-//             "
-//             SELECT * FROM datasets
-//             JOIN dataset_info
-//                 ON datasets._id=dataset_info._id
-//             WHERE dataset_info.status_code = 200
-//             ORDER BY {}
-//             DESC
-//             ",
-//             order_by.as_string()
-//         ))
-//         .unwrap();
-//     DatasetInfoWrapper::new(stmt, vec![])
-// }
+pub struct DatasetStatsInfoWrapper<'a> {
+    statement: rusqlite::Statement<'a>,
+    params: Vec<Box<dyn rusqlite::ToSql>>,
+}
+
+impl<'a> DatasetStatsInfoWrapper<'a> {
+    pub fn new(statement: rusqlite::Statement<'a>, params: Vec<Box<dyn rusqlite::ToSql>>) -> Self {
+        Self { statement, params }
+    }
+
+    pub fn get_iter(
+        &'_ mut self,
+    ) -> impl Iterator<Item = rusqlite::Result<(DatasetStatsId, DatasetStatsResponse)>> + '_ {
+        let params = rusqlite::params_from_iter(self.params.iter());
+        self.statement
+            .query_map(params, |row| Ok(parse_dataset_info(row)))
+            .unwrap()
+    }
+}
+
+#[derive(Default, Clone)]
+pub struct DatasetStatsId {
+    pub dataset: String,
+    pub config: String,
+    pub split: String,
+}
+
+fn parse_dataset_info(row: &Row) -> (DatasetStatsId, DatasetStatsResponse) {
+    let id: String = row.get("id").unwrap();
+    let config: String = row.get("config").unwrap();
+    let split: String = row.get("split").unwrap();
+    let stats_str: String = row.get("stats").unwrap();
+    (
+        DatasetStatsId { dataset: id, config, split },
+        serde_json::from_str(&stats_str).unwrap(),
+    )
+}
+
+pub fn get_ordered_dataset_stats_info(
+    conn: &Connection,
+    order_by: OrderByOptions,
+) -> DatasetStatsInfoWrapper<'_> {
+    let stmt = conn
+        .prepare(&format!(
+            "
+            SELECT * FROM datasets
+            JOIN dataset_stats
+            ON datasets.id=dataset_stats.id
+            WHERE dataset_stats.status_code = 200
+			ORDER BY {}, datasets.trending_score DESC, dataset_stats.id, dataset_stats.config
+            ",
+            order_by.as_string()
+        ))
+        .unwrap();
+    DatasetStatsInfoWrapper::new(stmt, vec![])
+}
