@@ -1,7 +1,4 @@
-use std::{
-    cmp::{max, min},
-    collections::HashMap,
-};
+use std::{cmp::max, collections::HashMap};
 
 use crate::{
     analysis::constants::MAX_CARDINALITY,
@@ -21,8 +18,6 @@ pub fn get_label_cardinality_distribution(conn: &Connection, order_by: OrderByOp
     let mut last_stats_id: DatasetStatsId = DatasetStatsId::default();
     let mut config_cardinality: usize = 0;
     let mut config_cardinality_counts = HashMap::<usize, usize>::new();
-    let mut min_examples = usize::MAX;
-    let mut min_examples_counts = HashMap::<usize, usize>::new();
     let mut configs_has_labels = 0;
     let mut configs_visited = 0;
     for dataset_stats in
@@ -38,15 +33,14 @@ pub fn get_label_cardinality_distribution(conn: &Connection, order_by: OrderByOp
             if config_cardinality != 0 {
                 configs_has_labels += 1;
 
+                if config_cardinality > 50 {
+                    println!("Found target: {:?}", last_stats_id);
+                    return;
+                }
+
                 *config_cardinality_counts
                     .entry(config_cardinality)
                     .or_insert(0) += 1;
-
-                // We only cares about how much
-                if min_examples > 50 {
-                    min_examples = 50;
-                }
-                *min_examples_counts.entry(min_examples).or_insert(0) += 1;
             }
 
             // progress tracker
@@ -64,7 +58,6 @@ pub fn get_label_cardinality_distribution(conn: &Connection, order_by: OrderByOp
             // reset status
             last_stats_id = dataset_stats_id.clone();
             config_cardinality = 0;
-            min_examples = usize::MAX;
         }
 
         for column in dataset_stats_response.statistics {
@@ -76,9 +69,6 @@ pub fn get_label_cardinality_distribution(conn: &Connection, order_by: OrderByOp
                     println!("dataset: {:?}, error: {:?}", dataset_stats_id, err);
                 } else if let Ok(stats) = stats {
                     config_cardinality = max(config_cardinality, stats.n_unique as usize);
-                    for (_, frequency) in stats.frequencies {
-                        min_examples = min(min_examples, frequency as usize);
-                    }
                 }
             }
         }
@@ -92,18 +82,6 @@ pub fn get_label_cardinality_distribution(conn: &Connection, order_by: OrderByOp
     println!("Cardinality,Coverage");
     for i in 0..=MAX_CARDINALITY {
         covered_configs += config_cardinality_counts.get(&i).unwrap_or(&0);
-        println!(
-            "{},{}",
-            i,
-            100.0 * covered_configs as f64 / configs_has_labels as f64
-        );
-    }
-
-    println!("----------------------------------------------------------------------");
-    let mut covered_configs = 0;
-    println!("Minimum Examples,Coverage");
-    for i in (0..=50).rev() {
-        covered_configs += min_examples_counts.get(&i).unwrap_or(&0);
         println!(
             "{},{}",
             i,

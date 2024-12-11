@@ -7,7 +7,7 @@ async fn main() {
 
     // limit_analysis::scrape::common::scrape_all_data(&conn);
 
-    limit_analysis::analysis::label_cardinality::get_label_cardinality_distribution(
+    limit_analysis::analysis::label_min_examples::get_label_min_examples_distribution(
         &conn,
         OrderByOptions::Trending,
         0.01,
