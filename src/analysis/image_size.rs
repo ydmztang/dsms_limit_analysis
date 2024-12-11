@@ -74,7 +74,7 @@ pub fn get_image_size_distribution(
     let max_bucket_index = *keys.last().unwrap();
     let mut covered_images = 0;
 
-    println!("Image Width,Count");
+    println!("Image Width,Coverage");
     for i in 0..=max_bucket_index {
         covered_images += size_buckets.get(&i).unwrap_or(&0);
         println!(
