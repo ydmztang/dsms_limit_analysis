@@ -36,8 +36,7 @@ pub fn get_label_min_examples_distribution(conn: &Connection, order_by: OrderByO
             if !label_frequencies.is_empty() {
                 configs_has_labels += 1;
 
-                let (min_examples, median_examples) =
-                    get_label_stats(&label_frequencies, last_stats_id);
+                let (min_examples, median_examples) = get_label_stats(&label_frequencies);
                 let min_examples = min(EXAMPLES_UPPER_LIMIT, min_examples);
                 let median_examples = min(EXAMPLES_UPPER_LIMIT, median_examples);
 
@@ -71,9 +70,8 @@ pub fn get_label_min_examples_distribution(conn: &Connection, order_by: OrderByO
                     println!("dataset: {:?}, error: {:?}", dataset_stats_id, err);
                 } else if let Ok(stats) = stats {
                     if stats.n_unique > 0 {
-                        let current_label_frequency = label_frequencies
-                            .entry(column.column_name)
-                            .or_default();
+                        let current_label_frequency =
+                            label_frequencies.entry(column.column_name).or_default();
 
                         for (class, frequency) in stats.frequencies {
                             *current_label_frequency.entry(class).or_insert(0) +=
@@ -108,10 +106,7 @@ pub fn get_label_min_examples_distribution(conn: &Connection, order_by: OrderByO
 }
 
 // calculate the min and median examples
-fn get_label_stats(
-    label_frequencies: &HashMap<String, HashMap<String, usize>>,
-    _dataset_stats_id: DatasetStatsId,
-) -> (usize, usize) {
+fn get_label_stats(label_frequencies: &HashMap<String, HashMap<String, usize>>) -> (usize, usize) {
     let mut counts_across_all_labels: Vec<usize> = vec![];
     for class_counts in label_frequencies.values() {
         for count in class_counts.values() {
