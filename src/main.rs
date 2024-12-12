@@ -7,7 +7,7 @@ async fn main() {
 
     // limit_analysis::scrape::common::scrape_all_data(&conn);
 
-    limit_analysis::analysis::label_min_examples::get_label_min_examples_distribution(
+    limit_analysis::analysis::tabular_inputs::get_tabular_inputs_details(
         &conn,
         OrderByOptions::Trending,
         0.01,
