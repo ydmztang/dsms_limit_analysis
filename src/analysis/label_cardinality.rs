@@ -33,11 +33,6 @@ pub fn get_label_cardinality_distribution(conn: &Connection, order_by: OrderByOp
             if config_cardinality != 0 {
                 configs_has_labels += 1;
 
-                if config_cardinality > 50 {
-                    println!("Found target: {:?}", last_stats_id);
-                    return;
-                }
-
                 *config_cardinality_counts
                     .entry(config_cardinality)
                     .or_insert(0) += 1;
