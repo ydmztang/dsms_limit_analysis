@@ -94,7 +94,7 @@ pub fn get_ordered_dataset_stats_info(
             JOIN dataset_stats
             ON datasets.id=dataset_stats.id
             WHERE dataset_stats.status_code = 200
-			ORDER BY {}, datasets.trending_score DESC, dataset_stats.id, dataset_stats.config
+			ORDER BY datasets.{} DESC, dataset_stats.id, dataset_stats.config
             ",
             order_by.as_string()
         ))
