@@ -2,6 +2,8 @@ use rusqlite::{params, Connection, Row};
 
 use crate::data_models::dataset::Dataset;
 
+use super::common::OrderByOptions;
+
 pub fn initialize_datasets_table(conn: &Connection) {
     let query = "
     CREATE TABLE IF NOT EXISTS datasets (
@@ -71,6 +73,24 @@ pub fn upsert_dataset(conn: &Connection, dataset: &Dataset) {
 
 pub fn list_all_datasets(conn: &Connection) -> Vec<Dataset> {
     let mut stmt = conn.prepare("SELECT * FROM datasets").unwrap();
+    let datasets_iter = stmt
+        .query_map([], |row| Ok(parse_dataset_row(row)))
+        .unwrap();
+
+    let mut datasets: Vec<Dataset> = vec![];
+    for dataset in datasets_iter {
+        datasets.push(dataset.unwrap())
+    }
+    datasets
+}
+
+pub fn get_ordered_datasets(conn: &Connection, order_by: OrderByOptions) -> Vec<Dataset> {
+    let mut stmt = conn
+        .prepare(&format!(
+            "SELECT * FROM datasets ORDER BY {} DESC",
+            order_by.as_string()
+        ))
+        .unwrap();
     let datasets_iter = stmt
         .query_map([], |row| Ok(parse_dataset_row(row)))
         .unwrap();
