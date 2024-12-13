@@ -7,3 +7,4 @@ pub mod label_min_examples;
 pub mod max_columns;
 pub mod max_field_length;
 pub mod tabular_inputs;
+pub mod task_popularity;

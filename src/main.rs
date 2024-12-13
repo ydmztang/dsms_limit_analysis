@@ -7,9 +7,9 @@ async fn main() {
 
     // limit_analysis::scrape::common::scrape_all_data(&conn);
 
-    limit_analysis::analysis::tabular_inputs::get_tabular_inputs_details(
+    limit_analysis::analysis::task_popularity::get_task_popularity(
         &conn,
         OrderByOptions::Trending,
-        0.01,
+        1.0,
     );
 }
